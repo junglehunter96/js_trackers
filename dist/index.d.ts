@@ -20,14 +20,21 @@ interface DefaultOption {
 interface Option extends Partial<DefaultOption> {
     requestUrl: string;
 }
+declare type reportTrackerData = {
+    [key: string]: any;
+    event: string;
+    targetKey: string;
+};
 
 declare class tracker {
     data: Option;
     constructor(options: Option);
     private initDefaultOption;
-    sendTracker<T>(data: T): void;
+    sendTracker(data: reportTrackerData): void;
     private captureEvents;
     private installTracker;
+    private reportJSErrorTracker;
+    private reportDomTracker;
     private reportTracker;
     setuuid<T extends DefaultOption["uuid"]>(uuid: T): void;
     setExtra<T extends DefaultOption["extra"]>(extra: T): void;

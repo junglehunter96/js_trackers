@@ -9,12 +9,17 @@
 </head>
 
 <body>
+	<button target-key="aaabbb">tracker-btn</button>
 	<script src="./dist/index.umd.js"></script>
 	<script>
 		new tracker.tracker({
 			requestUrl: "http://localhost:9000/tacker",
-			historyTracker: true
+			historyTracker: true,
+			domTracker: true,
+			jsError:true
 		})
+
+		a.b = 'xxxx'
 	</script>
 </body>
 

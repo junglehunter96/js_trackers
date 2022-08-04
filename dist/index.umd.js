@@ -21,6 +21,11 @@
 	    };
 	};
 
+	const MouseEventList = [
+	    "click",
+	    "dblclick",
+	    "contextmenu",
+	];
 	class tracker {
 	    constructor(options) {
 	        this.data = Object.assign(this.initDefaultOption(), options);
@@ -46,7 +51,7 @@
 	        eventList.forEach((eventName) => {
 	            window.addEventListener(eventName, () => {
 	                this.reportTracker({
-	                    eventName,
+	                    event: eventName,
 	                    targetKey,
 	                    data,
 	                });
@@ -61,6 +66,42 @@
 	        if (this.data.hashTracker) {
 	            this.captureEvents(["hashChange"], "hash-pv");
 	        }
+	        if (this.data.domTracker) {
+	            this.reportDomTracker();
+	        }
+	        if (this.data.jsError) {
+	            this.reportJSErrorTracker();
+	        }
+	    }
+	    reportJSErrorTracker() {
+	        window.addEventListener('error', (target) => {
+	            this.reportTracker({
+	                event: 'jsError',
+	                targetKey: 'js-error',
+	                message: target.message,
+	                filename: target.filename,
+	            });
+	        });
+	        window.addEventListener('unhandledrejection', (event) => {
+	            this.reportTracker({
+	                event: 'jsError',
+	                targetKey: 'Promise-rejection-event',
+	                reason: event.reason,
+	            });
+	        });
+	    }
+	    reportDomTracker() {
+	        MouseEventList.forEach((eventName) => {
+	            window.addEventListener(eventName, (mouseEvent) => {
+	                let element = mouseEvent.target;
+	                if (element.getAttribute('target-key')) {
+	                    this.reportTracker({
+	                        event: eventName,
+	                        targetKey: element.getAttribute('target-key'),
+	                    });
+	                }
+	            });
+	        });
 	    }
 	    reportTracker(data) {
 	        const params = Object.assign(this.data, data, {
@@ -69,9 +110,7 @@
 	        let headers = {
 	            type: "application/x-www-form-urlencoded",
 	        };
-	        console.log('params: ', params);
 	        let blob = new Blob([JSON.stringify(params)], headers);
-	        console.log('blob: ', blob);
 	        navigator.sendBeacon(this.data.requestUrl, blob);
 	    }
 	    setuuid(uuid) {
