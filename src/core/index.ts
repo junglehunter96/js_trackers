@@ -1,5 +1,15 @@
 import { DefaultOption, Option, TrackerConfig } from "../types/index";
 import { createHistoryEvent } from "../utils/pv";
+const MouseEventList: string[] = [
+  "click",
+  "dblclick",
+  "contextmenu",
+  "mousedown",
+  "mouseup",
+  "mouseenter",
+  "mouseout",
+  "mouseover",
+];
 export class tracker {
   data: Option;
   constructor(options: Option) {
@@ -19,6 +29,7 @@ export class tracker {
       jsError: false,
     };
   }
+
   sendTracker<T>(data: T) {
     this.reportTracker(data);
   }
@@ -49,6 +60,13 @@ export class tracker {
     if (this.data.hashTracker) {
       this.captureEvents(["hashChange"], "hash-pv");
     }
+    if (this.data.domTracker) {
+    }
+  }
+  private installDomTracker() {
+    MouseEventList.forEach((eventName) => {
+      window.addEventListener(eventName, () => {});
+    });
   }
   private reportTracker<T>(data: T) {
     const params = Object.assign(this.data, data, {
