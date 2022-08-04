@@ -1,12 +1,15 @@
 {
-  "name": "trackers",
+  "name": "zx-trackers-sdk",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "browser":"dist/index.umd.js",
   "scripts": {
     "build": "rollup -c"
   },
-  "keywords": [],
+  "keywords": ["web埋点"],
+  "files": ["dist"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
