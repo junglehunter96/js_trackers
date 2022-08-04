@@ -8,7 +8,7 @@
  * @extra透传字段
  * @jsError js 和 promise 报错异常上报
  */
- export interface DefaultOptons {
+ export interface DefaultOption {
 	uuid: string | undefined,
 	requestUrl: string | undefined,
 	historyTracker: boolean,
@@ -20,7 +20,7 @@
 }
 
 //必传参数 requestUrl
-export interface Options extends Partial<DefaultOptons> {
+export interface Option extends Partial<DefaultOption> {
 	requestUrl: string,
 }
 

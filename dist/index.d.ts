@@ -7,7 +7,7 @@
  * @extra透传字段
  * @jsError js 和 promise 报错异常上报
  */
-interface DefaultOptons {
+interface DefaultOption {
     uuid: string | undefined;
     requestUrl: string | undefined;
     historyTracker: boolean;
@@ -17,16 +17,20 @@ interface DefaultOptons {
     extra: Record<string, any> | undefined;
     jsError: boolean;
 }
-interface Options extends Partial<DefaultOptons> {
+interface Option extends Partial<DefaultOption> {
     requestUrl: string;
 }
 
 declare class tracker {
-    data: Options;
-    constructor(options: Options);
-    private initDefaultOptions;
+    data: Option;
+    constructor(options: Option);
+    private initDefaultOption;
+    sendTracker<T>(data: T): void;
     private captureEvents;
     private installTracker;
+    private reportTracker;
+    setuuid<T extends DefaultOption["uuid"]>(uuid: T): void;
+    setExtra<T extends DefaultOption["extra"]>(extra: T): void;
 }
 
 export { tracker };

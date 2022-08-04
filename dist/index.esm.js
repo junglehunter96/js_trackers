@@ -4,11 +4,12 @@ var TrackerConfig;
     TrackerConfig["version"] = "1.0.0";
 })(TrackerConfig || (TrackerConfig = {}));
 
+// 重写historyEvent 以便全局能监控到
 const createHistoryEvent = (type) => {
-    const origin = history[type];
-    return function () {
-        const res = origin.apply(this, arguments);
-        var e = new Event(type);
+    let origin = history[type];
+    return function (...args) {
+        const res = origin.apply(this, args);
+        const e = new Event(type);
         window.dispatchEvent(e);
         return res;
     };
@@ -16,38 +17,62 @@ const createHistoryEvent = (type) => {
 
 class tracker {
     constructor(options) {
-        console.log('init....construtor');
-        this.data = Object.assign(this.initDefaultOptions, options);
+        this.data = Object.assign(this.initDefaultOption(), options);
         this.installTracker();
     }
-    initDefaultOptions() {
+    initDefaultOption() {
         // hack  history pushState 和 replaceState 两者不触发Event
-        window.history['pushState'] = createHistoryEvent('pushState');
-        window.history['replaceState'] = createHistoryEvent('replaceState');
+        window.history["pushState"] = createHistoryEvent("pushState");
+        window.history["replaceState"] = createHistoryEvent("replaceState");
         return {
             historyTracker: false,
             hashTracker: false,
             domTracker: false,
             sdkVersion: TrackerConfig.version,
-            jsError: false
+            jsError: false,
         };
+    }
+    sendTracker(data) {
+        this.reportTracker(data);
     }
     // 捕获Event dosmt
     captureEvents(eventList, targetKey, data) {
-        eventList.forEach(eventName => {
-            console.log('%c [ eventName ]-28', 'font-size:13px; background:pink; color:#bf2c9f;', eventName);
+        eventList.forEach((eventName) => {
             window.addEventListener(eventName, () => {
-                console.log('监听到了');
+                this.reportTracker({
+                    eventName,
+                    targetKey,
+                    data,
+                });
             });
         });
     }
     // 初始化tracker
     installTracker() {
-        console.log('installTracker');
         if (this.data.historyTracker) {
-            console.log(this.data.historyTracker);
-            this.captureEvents(['pushState', 'replaceState', 'popstate'], 'history-pv');
+            this.captureEvents(["pushState", "replaceState", "popstate"], "history-pv");
         }
+        if (this.data.hashTracker) {
+            this.captureEvents(["hashChange"], "hash-pv");
+        }
+    }
+    reportTracker(data) {
+        const params = Object.assign(this.data, data, {
+            time: new Date().getTime(),
+        });
+        let headers = {
+            type: "application/x-www-form-urlencoded",
+        };
+        console.log('params: ', params);
+        let blob = new Blob([JSON.stringify(params)], headers);
+        console.log('blob: ', blob);
+        navigator.sendBeacon(this.data.requestUrl, blob);
+    }
+    setuuid(uuid) {
+        this.data.uuid = uuid;
+    }
+    setExtra(extra) {
+        this.data.extra = extra;
     }
 }
 
